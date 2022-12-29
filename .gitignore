@@ -3,3 +3,6 @@
 
 # pyenv
 .python-version
+
+# build artifacts
+hello_world.ppm

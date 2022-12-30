@@ -1,32 +1,37 @@
 """Render."""
 
+import math
+
 from .ray import Ray
 from .vec3 import (unit_vector, Vec3)
 
 
 _WHITE = Vec3(1.0, 1.0, 1.0)
-_RED = Vec3(1.0, 0.0, 0.0)
 _LIGHT_BLUE = Vec3(0.5, 0.7, 1.0)
 
 
-def hit_sphere(center: Vec3, radius: float, ray: Ray) -> bool:
+def hit_sphere(center: Vec3, radius: float, ray: Ray) -> float:
     """Sphere hit check."""
     oc = ray.origin - center
     a = ray.direction.dot(ray.direction)
     b = 2.0 * oc.dot(ray.direction)
     c = oc.dot(oc) - radius*radius
     discriminant = b*b - 4*a*c
-    return discriminant > 0
+    if discriminant < 0:
+        return -1.0
+    return (-b - math.sqrt(discriminant)) / (2.0*a)
 
 
 def color(
         ray: Ray, start_color: Vec3 = _WHITE, end_color: Vec3 = _LIGHT_BLUE
 ) -> Vec3:
     """Calculate ray color."""
-    if hit_sphere(Vec3(0, 0, -1), 0.5, ray):
-        return _RED
+    parameter = hit_sphere(Vec3(0, 0, -1), 0.5, ray)
+    if parameter > 0.0:
+        N = unit_vector(ray.point_at_parameter(parameter) - Vec3(0, 0, -1))
+        return 0.5 * Vec3(N.x + 1.0, N.y + 1.0, N.z + 1.0)
     unit_direction = unit_vector(ray.direction)
-    parameter = 0.5 * (unit_direction.y + 1.0)
+    parameter = 0.5 * (unit_direction.y + 1.0)  # remap from -1<x<1 to 0<x<1
     return (1 - parameter)*start_color + parameter*end_color  # lerp
 
 

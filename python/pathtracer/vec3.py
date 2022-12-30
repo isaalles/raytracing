@@ -94,7 +94,7 @@ class Vec3:
         return self
 
     def __mul__(self, other):
-        if isinstance(other, float):
+        if isinstance(other, (float, int)):
             return Vec3(
                 self.x * other,
                 self.y * other,
@@ -112,7 +112,7 @@ class Vec3:
         return self.__mul__(other)
 
     def __imul__(self, other):
-        if isinstance(other, float):
+        if isinstance(other, (float, int)):
             self.x *= other
             self.y *= other
             self.z *= other
@@ -124,7 +124,7 @@ class Vec3:
         return self
 
     def __truediv__(self, other):
-        if isinstance(other, float):
+        if isinstance(other, (float, int)):
             return Vec3(
                 self.x / other,
                 self.y / other,
@@ -139,7 +139,7 @@ class Vec3:
         )
 
     def __itruediv__(self, other):
-        if isinstance(other, float):
+        if isinstance(other, (float, int)):
             factor = 1 / other
             self.x *= factor
             self.y *= factor

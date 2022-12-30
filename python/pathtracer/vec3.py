@@ -123,7 +123,7 @@ class Vec3:
             self.z *= other.z
         return self
 
-    def __div__(self, other):
+    def __truediv__(self, other):
         if isinstance(other, float):
             return Vec3(
                 self.x / other,
@@ -138,7 +138,7 @@ class Vec3:
             self.z / other.z,
         )
 
-    def __idiv__(self, other):
+    def __itruediv__(self, other):
         if isinstance(other, float):
             factor = 1 / other
             self.x *= factor

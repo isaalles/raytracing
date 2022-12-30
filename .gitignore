@@ -1,8 +1,5 @@
-# python
-*.py[cod]
-
 # pyenv
 .python-version
 
-# build artifacts
+# run artifacts
 hello_world.ppm

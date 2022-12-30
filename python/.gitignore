@@ -1,0 +1,12 @@
+# python
+*.py[cod]
+__pycache__
+
+# python linters
+.mypy_cache
+
+# build/distribution artifacts
+build/
+dist/
+*.egg-info/
+*.egg

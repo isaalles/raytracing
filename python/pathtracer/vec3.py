@@ -204,3 +204,8 @@ class Vec3:
     @b.setter
     def b(self, value: float):
         self._values[2] = value
+
+
+def unit_vector(vector: Vec3) -> Vec3:
+    """Get unit vector."""
+    return vector / vector.length()

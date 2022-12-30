@@ -15,7 +15,7 @@ def hello_world(path=None):
         f"{resx} {resy}",
         "255",
     ]
-    for j in range(resy-1, 0, -1):
+    for j in range(resy-1, -1, -1):
         for i in range(resx):
             col = Vec3(i / resx, j / resy, 0.2)
             lines.append(str((255.99 * col).to_int()))

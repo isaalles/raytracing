@@ -15,7 +15,7 @@ class Vec3:
 
     def squared_length(self) -> float:
         """Calculate the vector squared length."""
-        return self.x*self.x + self.y*self.y + self.z*self.x
+        return self.x*self.x + self.y*self.y + self.z*self.z
 
     def length(self) -> float:
         """Calculate vector length."""

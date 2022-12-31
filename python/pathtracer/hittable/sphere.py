@@ -23,11 +23,17 @@ class Sphere(Hittable):
             root = (-b - math.sqrt(discriminant)) / a
             if t_min <= root <= t_max:
                 point = ray.point_at_parameter(root)
-                return (True, HitRecord(root, point, (point - self.center) / self.radius))
+                normal = (point - self.center) / self.radius
+                record = HitRecord(root, point, normal)
+                record.set_face_normal(ray, normal)
+                return (True, record)
 
             root = (-b + math.sqrt(discriminant)) / a
             if t_min <= root <= t_max:
                 point = ray.point_at_parameter(root)
-                return (True, HitRecord(root, point, (point - self.center) / self.radius))
+                normal = (point - self.center) / self.radius
+                record = HitRecord(root, point, normal)
+                record.set_face_normal(ray, normal)
+                return (True, record)
 
         return (False, None)

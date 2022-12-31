@@ -21,6 +21,7 @@ def ray_color(ray: Ray, world: HittableList) -> Vec3:
 
     unit_direction = ray.direction.unit_vector()
     parameter = 0.5 * (unit_direction.y + 1.0)  # remap from -1<x<1 to 0<x<1
+    # blended_value = (1 - t) * start_value + t * end_value
     return (1 - parameter)*_WHITE + parameter*_LIGHT_BLUE  # lerp
 
 

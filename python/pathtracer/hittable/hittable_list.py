@@ -15,6 +15,10 @@ class HittableList(Hittable):
         """Append item to hittable list."""
         self.hittable_list.append(other)
 
+    def clear(self):
+        """Clear hittable list."""
+        self.hittable_list.clear()
+
     def hit(self, ray, t_min, t_max):
         hit_anything = False
         closest_so_far = t_max

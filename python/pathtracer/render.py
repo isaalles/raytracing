@@ -25,7 +25,7 @@ def ray_color(ray: Ray, world: HittableList) -> Vec3:
     return (1 - parameter)*_WHITE + parameter*_LIGHT_BLUE  # lerp
 
 
-def image(path=None):
+def image(path=None, verbose=False):
     """Render image."""
     if not path:
         path = "image.ppm"
@@ -60,7 +60,8 @@ def image(path=None):
     ])
 
     for j in range(resy-1, -1, -1):
-        print(f"Scanlines remaining: {j}")
+        if verbose:
+            print(f"Scanlines remaining: {j}")
         for i in range(resx):
             col = Vec3(0, 0, 0)
             for _ in range(samples):
@@ -77,10 +78,11 @@ def image(path=None):
         f.writelines("\n".join(lines))
         f.write("\n")
 
-    print("Done")
+    if verbose:
+        print("Done")
 
 
-def hello_world(path=None):
+def hello_world(path=None, verbose=False):
     """Hello World render of ppm image file."""
     if not path:
         path = "hello_world.ppm"
@@ -96,7 +98,8 @@ def hello_world(path=None):
         "255",
     ]
     for j in range(resy-1, -1, -1):
-        print(f"Scanlines remaining: {j}")
+        if verbose:
+            print(f"Scanlines remaining: {j}")
         for i in range(resx):
             col = Color(i / (resx-1), j / (resy-1), 0.2)
             lines.append(col.color_string())
@@ -105,7 +108,8 @@ def hello_world(path=None):
         f.writelines("\n".join(lines))
         f.write("\n")
 
-    print("Done")
+    if verbose:
+        print("Done")
 
 
 def main():

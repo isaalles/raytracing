@@ -28,6 +28,10 @@ class Vec3:
         self.y *= k
         self.z *= k
 
+    def unit_vector(self):
+        """Get unit vector."""
+        return self / self.length()
+
     def dot(self, other) -> float:
         """Calculate the dot product with another vector."""
         assert isinstance(other, Vec3)
@@ -206,6 +210,12 @@ class Vec3:
         self._values[2] = value
 
 
-def unit_vector(vector: Vec3) -> Vec3:
-    """Get unit vector."""
-    return vector / vector.length()
+class Point3(Vec3):
+    """Point"""
+
+
+class Color(Vec3):
+    """Color."""
+    def color_string(self):
+        """Translate to a [0, 255] color value as string for each component."""
+        return str((255.99 * self).to_int())

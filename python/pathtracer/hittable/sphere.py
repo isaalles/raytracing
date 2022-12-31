@@ -18,15 +18,16 @@ class Sphere(Hittable):
         c = oc.dot(oc) - self.radius * self.radius
         discriminant = b*b - a*c
 
-        if discriminant > 0:
-            temp = (-b - math.sqrt(discriminant)) / a
-            if t_min < temp < t_max:
-                point = ray.point_at_parameter(temp)
-                return (True, HitRecord(temp, point, (point - self.center) / self.radius))
+        # Find the nearest root that lies in the acceptable range.
+        if discriminant >= 0:
+            root = (-b - math.sqrt(discriminant)) / a
+            if t_min <= root <= t_max:
+                point = ray.point_at_parameter(root)
+                return (True, HitRecord(root, point, (point - self.center) / self.radius))
 
-            temp = (-b + math.sqrt(discriminant)) / a
-            if t_min < temp < t_max:
-                point = ray.point_at_parameter(temp)
-                return (True, HitRecord(temp, point, (point - self.center) / self.radius))
+            root = (-b + math.sqrt(discriminant)) / a
+            if t_min <= root <= t_max:
+                point = ray.point_at_parameter(root)
+                return (True, HitRecord(root, point, (point - self.center) / self.radius))
 
         return (False, None)

@@ -1,7 +1,9 @@
 """Render."""
 
+import random
 import sys
 
+from .camera import Camera
 from .hittable import (HittableList, Sphere)
 from .ray import Ray
 from .vec3 import (unit_vector, Vec3)
@@ -29,17 +31,14 @@ def image(path=None):
 
     resx = 200
     resy = 100
+    samples = 100
     lines = [
         "P3",
         f"{resx} {resy}",
         "255",
     ]
 
-    lower_left_corner = Vec3(-2.0, -1.0, -1.0)
-    horizontal = Vec3(4.0, 0.0, 0.0)
-    vertical = Vec3(0.0, 2.0, 0.0)
-    origin = Vec3(0.0, 0.0, 0.0)
-
+    camera = Camera()
     world = HittableList([
         Sphere(Vec3(0, 0, -1), 0.5),
         Sphere(Vec3(0, -100.5, -1), 100),
@@ -47,12 +46,15 @@ def image(path=None):
 
     for j in range(resy-1, -1, -1):
         for i in range(resx):
-            u = i / resx
-            v = j / resy
-            ray = Ray(origin, lower_left_corner + u*horizontal + v*vertical)
+            col = Vec3(0, 0, 0)
+            for _ in range(samples):
+                u = (i + random.random()) / (resx - 1)
+                v = (j + random.random()) / (resy - 1)
+                ray = camera.get_ray(u, v)
+                # point = ray.point_at_parameter(2.0)
+                col += color(ray, world)
 
-            # point = ray.point_at_parameter(2.0)
-            col = color(ray, world)
+            col /= samples
             lines.append(str((255.99 * col).to_int()))
 
     with open(path, "w", encoding="utf-8") as f:

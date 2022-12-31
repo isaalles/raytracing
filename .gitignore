@@ -1,6 +1,9 @@
+# OSX
+.DS_Store
+
 # pyenv
 .python-version
 
 # run artifacts
 hello_world.ppm
-image.ppm
+image*.ppm

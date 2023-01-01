@@ -45,14 +45,19 @@ def image(path=None, verbose=False):
     # Camera
     # For square pixels, we want the viewport's aspect ratio to match our image's.
     viewport_height = 2.0
-    viewport_width = aspect_ratio * viewport_height
+    # viewport_width is calculated with the height and the aspect ratio
     focal_length = 1.0
 
     origin = Point3(0, 0, 0)
-    horizontal = Vec3(viewport_width, 0.0, 0.0)
-    vertical = Vec3(0.0, viewport_height, 0.0)
-    lower_left_corner = origin - horizontal/2 - vertical/2 - Vec3(0, 0, focal_length)
-    camera = Camera(origin, lower_left_corner, horizontal, vertical)
+    # The horizontal and vertical vectors are origin + the width/height in the
+    # corresponding axis; these are calculated directly by the camera object.
+
+    camera = Camera(
+        aspect_ratio=aspect_ratio,
+        viewport_height=viewport_height,
+        focal_length=focal_length,
+        origin=origin,
+    )
 
     # Render
     lines = [

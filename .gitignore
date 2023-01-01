@@ -1,6 +1,9 @@
 # OSX
 .DS_Store
 
+# self scratch space
+.scratch
+
 # pyenv
 .python-version
 

@@ -70,16 +70,15 @@ def image(path=None, verbose=False):
         if verbose:
             print(f"Scanlines remaining: {j}")
         for i in range(resx):
-            col = Color(0, 0, 0)
+            pixel_color = Color(0, 0, 0)
             for _ in range(samples):
                 u = (i + random.random()) / (resx - 1)
                 v = (j + random.random()) / (resy - 1)
                 ray = camera.get_ray(u, v)
                 # point = ray.point_at_parameter(2.0)
-                col += ray_color(ray, world)
+                pixel_color += ray_color(ray, world)
 
-            col /= samples
-            lines.append(col.color_string())
+            lines.append(pixel_color.as_string(samples))
 
     with open(path, "w", encoding="utf-8") as f:
         f.writelines("\n".join(lines))
@@ -109,7 +108,7 @@ def hello_world(path=None, verbose=False):
             print(f"Scanlines remaining: {j}")
         for i in range(resx):
             col = Color(i / (resx-1), j / (resy-1), 0.2)
-            lines.append(col.color_string())
+            lines.append(col.as_string())
 
     with open(path, "w", encoding="utf-8") as f:
         f.writelines("\n".join(lines))

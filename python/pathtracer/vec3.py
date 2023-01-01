@@ -216,6 +216,7 @@ class Point3(Vec3):
 
 class Color(Vec3):
     """Color."""
-    def color_string(self):
+    def as_string(self, samples_per_pixel=1):
         """Translate to a [0, 255] color value as string for each component."""
-        return str((255.99 * self).to_int())
+        color = self / samples_per_pixel
+        return str((255.99 * color).to_int())

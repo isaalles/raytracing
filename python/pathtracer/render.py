@@ -1,7 +1,7 @@
 """Render."""
 
+import math
 import random
-import sys
 
 from .camera import Camera
 from .hittable import (HittableList, Sphere)
@@ -15,9 +15,9 @@ _LIGHT_BLUE = Color(0.5, 0.7, 1.0)
 
 def ray_color(ray: Ray, world: HittableList) -> Vec3:
     """Calculate pixel color."""
-    hit, record = world.hit(ray, 0.0, sys.float_info.max)
+    hit, record = world.hit(ray, 0.0, math.inf)
     if hit:
-        return 0.5*Vec3(record.normal.x + 1, record.normal.y + 1, record.normal.z + 1)
+        return 0.5*(record.normal + Color(1, 1, 1))
 
     unit_direction = ray.direction.unit_vector()
     parameter = 0.5 * (unit_direction.y + 1.0)  # remap from -1<x<1 to 0<x<1
@@ -34,13 +34,20 @@ def image(path=None, verbose=False):
     aspect_ratio = 2.0 / 1.0
     resx = 200
     resy = int(resx // aspect_ratio)
-    samples = 100
+    samples = 10
+
+    # World
+    world = HittableList([
+        Sphere(Point3(0, 0, -1), 0.5),
+        Sphere(Point3(0, -100.5, -1), 100),
+    ])
 
     # Camera
     # For square pixels, we want the viewport's aspect ratio to match our image's.
     viewport_height = 2.0
     viewport_width = aspect_ratio * viewport_height
     focal_length = 1.0
+
     origin = Point3(0, 0, 0)
     horizontal = Vec3(viewport_width, 0.0, 0.0)
     vertical = Vec3(0.0, viewport_height, 0.0)
@@ -54,16 +61,11 @@ def image(path=None, verbose=False):
         "255",
     ]
 
-    world = HittableList([
-        Sphere(Vec3(0, 0, -1), 0.5),
-        Sphere(Vec3(0, -100.5, -1), 100),
-    ])
-
     for j in range(resy-1, -1, -1):
         if verbose:
             print(f"Scanlines remaining: {j}")
         for i in range(resx):
-            col = Vec3(0, 0, 0)
+            col = Color(0, 0, 0)
             for _ in range(samples):
                 u = (i + random.random()) / (resx - 1)
                 v = (j + random.random()) / (resy - 1)
@@ -72,7 +74,7 @@ def image(path=None, verbose=False):
                 col += ray_color(ray, world)
 
             col /= samples
-            lines.append(str((255.99 * col).to_int()))
+            lines.append(col.color_string())
 
     with open(path, "w", encoding="utf-8") as f:
         f.writelines("\n".join(lines))

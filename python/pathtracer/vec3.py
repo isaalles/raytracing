@@ -230,8 +230,25 @@ class Color(Vec3):
     """Color."""
     def as_string(self, samples_per_pixel=1):
         """Translate to a [0, 255] color value as string for each component."""
-        color = self / samples_per_pixel
-        return str((255.99 * color).to_int())
+        r = self.r
+        g = self.g
+        b = self.b
+
+        # Divide the color by the number of samples and gamma-correct for gamma=2.0.
+        # Which means raising the color to the power 1/gamma, which in our case
+        # is 1/2 i.e. the square root.
+        scale = 1 / samples_per_pixel
+        color = Color(
+            clamp(math.sqrt(scale * r), 0.0, 0.999),
+            clamp(math.sqrt(scale * g), 0.0, 0.999),
+            clamp(math.sqrt(scale * b), 0.0, 0.999),
+        )
+        return str((256 * color).to_int())
+
+
+def clamp(value, min_value, max_value):
+    """Clamp value in between a mix and max."""
+    return max(min(value, max_value), min_value)
 
 
 def random_in_unit_sphere():

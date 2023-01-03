@@ -1,6 +1,7 @@
 """Vector 3 implementation."""
 
 import math
+import random
 
 
 class Vec3:
@@ -209,6 +210,17 @@ class Vec3:
     def b(self, value: float):
         self._values[2] = value
 
+    @staticmethod
+    def random(min_value=None, max_value=None):
+        """Generate random vector."""
+        if min_value is None or max_value is None:
+            return Vec3(random.random(), random.random(), random.random())
+        return Vec3(
+            random.uniform(min_value, max_value),
+            random.uniform(min_value, max_value),
+            random.uniform(min_value, max_value)
+        )
+
 
 class Point3(Vec3):
     """Point"""
@@ -220,3 +232,12 @@ class Color(Vec3):
         """Translate to a [0, 255] color value as string for each component."""
         color = self / samples_per_pixel
         return str((255.99 * color).to_int())
+
+
+def random_in_unit_sphere():
+    """Rejection method to check if a point in a unit cube is also inside a unit sphere."""
+    while True:
+        point = Vec3.random(-1, 1)
+        if point.squared_length() >= 1:
+            continue
+        return point

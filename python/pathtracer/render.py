@@ -6,18 +6,30 @@ import random
 from .camera import Camera
 from .hittable import (HittableList, Sphere)
 from .ray import Ray
-from .vec3 import (Color, Point3, Vec3)
+from .vec3 import (
+    Color,
+    Point3,
+    Vec3,
+    random_in_unit_sphere,
+)
 
 
+_BLACK = Color(0.0, 0.0, 0.0)
 _WHITE = Color(1.0, 1.0, 1.0)
 _LIGHT_BLUE = Color(0.5, 0.7, 1.0)
 
 
-def ray_color(ray: Ray, world: HittableList) -> Vec3:
+def ray_color(ray: Ray, world: HittableList, depth: int) -> Vec3:
     """Calculate pixel color."""
+    # Protect against recursion limit:
+    # If we have exceeded the ray bounce limit, no more light is gathered.
+    if depth <= 0:
+        return _BLACK
+
     hit, record = world.hit(ray, 0.0, math.inf)
     if hit:
-        return 0.5*(record.normal + Color(1, 1, 1))
+        target = record.point + record.normal + random_in_unit_sphere()
+        return 0.5 * ray_color(Ray(record.point, target - record.point), world, depth-1)
 
     unit_direction = ray.direction.unit_vector()
     parameter = 0.5 * (unit_direction.y + 1.0)  # remap from -1<x<1 to 0<x<1
@@ -34,7 +46,9 @@ def image(path=None, verbose=False):
     aspect_ratio = 2.0 / 1.0
     resx = 200
     resy = int(resx // aspect_ratio)
+
     samples = 10
+    max_depth = 50
 
     # World
     world = HittableList([
@@ -76,7 +90,7 @@ def image(path=None, verbose=False):
                 v = (j + random.random()) / (resy - 1)
                 ray = camera.get_ray(u, v)
                 # point = ray.point_at_parameter(2.0)
-                pixel_color += ray_color(ray, world)
+                pixel_color += ray_color(ray, world, max_depth)
 
             lines.append(pixel_color.as_string(samples))
 

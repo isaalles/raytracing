@@ -37,6 +37,42 @@ def ray_color(ray: Ray, world: HittableList, depth: int) -> Vec3:
     return (1 - parameter)*_WHITE + parameter*_LIGHT_BLUE  # lerp
 
 
+def _image(verbose=False, test=False, **kwargs):
+    resx = kwargs.get("resx")
+    resy = kwargs.get("resy")
+    samples = kwargs.get("samples")
+    camera = kwargs.get("camera")
+    world = kwargs.get("world")
+    max_depth = kwargs.get("max_depth")
+
+    lines = []
+
+    if test:
+        for j in range(resy-1, -1, -1):
+            if verbose:
+                print(f"Scanlines remaining: {j}")
+            for i in range(resx):
+                col = Color(i / (resx-1), j / (resy-1), 0.2)
+                lines.append(col.as_string())
+
+    else:
+        for j in range(resy-1, -1, -1):
+            if verbose:
+                print(f"Scanlines remaining: {j}")
+            for i in range(resx):
+                pixel_color = Color(0, 0, 0)
+                for _ in range(samples):
+                    u = (i + random.random()) / (resx - 1)
+                    v = (j + random.random()) / (resy - 1)
+                    ray = camera.get_ray(u, v)
+                    # point = ray.point_at_parameter(2.0)
+                    pixel_color += ray_color(ray, world, max_depth)
+
+                lines.append(pixel_color.as_string(samples))
+
+    return lines
+
+
 def image(path=None, verbose=False):
     """Render image."""
     if not path:
@@ -80,19 +116,18 @@ def image(path=None, verbose=False):
         "255",
     ]
 
-    for j in range(resy-1, -1, -1):
-        if verbose:
-            print(f"Scanlines remaining: {j}")
-        for i in range(resx):
-            pixel_color = Color(0, 0, 0)
-            for _ in range(samples):
-                u = (i + random.random()) / (resx - 1)
-                v = (j + random.random()) / (resy - 1)
-                ray = camera.get_ray(u, v)
-                # point = ray.point_at_parameter(2.0)
-                pixel_color += ray_color(ray, world, max_depth)
-
-            lines.append(pixel_color.as_string(samples))
+    lines.extend(
+        _image(
+            verbose=verbose,
+            test=False,
+            resx=resx,
+            resy=resy,
+            camera=camera,
+            world=world,
+            samples=samples,
+            max_depth=max_depth,
+        )
+    )
 
     with open(path, "w", encoding="utf-8") as f:
         f.writelines("\n".join(lines))
@@ -117,12 +152,15 @@ def hello_world(path=None, verbose=False):
         f"{resx} {resy}",
         "255",
     ]
-    for j in range(resy-1, -1, -1):
-        if verbose:
-            print(f"Scanlines remaining: {j}")
-        for i in range(resx):
-            col = Color(i / (resx-1), j / (resy-1), 0.2)
-            lines.append(col.as_string())
+
+    lines.extend(
+        _image(
+            verbose=verbose,
+            test=True,
+            resx=resx,
+            resy=resy,
+        )
+    )
 
     with open(path, "w", encoding="utf-8") as f:
         f.writelines("\n".join(lines))

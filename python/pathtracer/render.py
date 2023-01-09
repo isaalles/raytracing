@@ -37,7 +37,7 @@ def ray_color(ray: Ray, world: HittableList, depth: int) -> Vec3:
     return (1 - parameter)*_WHITE + parameter*_LIGHT_BLUE  # lerp
 
 
-def _image(verbose=False, test=False, **kwargs):
+def _scanline(scanline, test=False, **kwargs):
     resx = kwargs.get("resx")
     resy = kwargs.get("resy")
     samples = kwargs.get("samples")
@@ -48,27 +48,34 @@ def _image(verbose=False, test=False, **kwargs):
     lines = []
 
     if test:
-        for j in range(resy-1, -1, -1):
-            if verbose:
-                print(f"Scanlines remaining: {j}")
-            for i in range(resx):
-                col = Color(i / (resx-1), j / (resy-1), 0.2)
-                lines.append(col.as_string())
+        for i in range(resx):
+            col = Color(i / (resx-1), scanline / (resy-1), 0.2)
+            lines.append(col.as_string())
 
     else:
-        for j in range(resy-1, -1, -1):
-            if verbose:
-                print(f"Scanlines remaining: {j}")
-            for i in range(resx):
-                pixel_color = Color(0, 0, 0)
-                for _ in range(samples):
-                    u = (i + random.random()) / (resx - 1)
-                    v = (j + random.random()) / (resy - 1)
-                    ray = camera.get_ray(u, v)
-                    # point = ray.point_at_parameter(2.0)
-                    pixel_color += ray_color(ray, world, max_depth)
+        for i in range(resx):
+            pixel_color = Color(0, 0, 0)
+            for _ in range(samples):
+                u = (i + random.random()) / (resx - 1)
+                v = (scanline + random.random()) / (resy - 1)
+                ray = camera.get_ray(u, v)
+                # point = ray.point_at_parameter(2.0)
+                pixel_color += ray_color(ray, world, max_depth)
 
-                lines.append(pixel_color.as_string(samples))
+            lines.append(pixel_color.as_string(samples))
+
+    return lines
+
+
+def _image(verbose=False, test=False, **kwargs):
+    resy = kwargs.get("resy")
+
+    lines = []
+
+    for j in range(resy-1, -1, -1):
+        if verbose:
+            print(f"Scanlines remaining: {j}")
+        lines.extend(_scanline(j, test=test, **kwargs))
 
     return lines
 

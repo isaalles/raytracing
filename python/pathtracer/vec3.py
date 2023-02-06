@@ -258,3 +258,11 @@ def random_in_unit_sphere():
         if point.squared_length() >= 1:
             continue
         return point
+
+
+def random_in_hemisphere(normal):
+    """Check if point is in the same hemisphere as the normal."""
+    in_unit_sphere = random_in_unit_sphere()
+    if in_unit_sphere.dot(normal) > 0.0:
+        return in_unit_sphere
+    return -in_unit_sphere

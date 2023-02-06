@@ -1,5 +1,6 @@
 """Render."""
 
+import enum
 import functools
 import math
 import multiprocessing
@@ -12,6 +13,7 @@ from .vec3 import (
     Color,
     Point3,
     Vec3,
+    random_in_hemisphere,
     random_in_unit_sphere,
 )
 
@@ -20,10 +22,15 @@ _BLACK = Color(0.0, 0.0, 0.0)
 _WHITE = Color(1.0, 1.0, 1.0)
 _LIGHT_BLUE = Color(0.5, 0.7, 1.0)
 
+DIFFUSE_MODE = enum.Enum(
+    "DIFFUSE_MODE",
+    ["SIMPLE", "LAMBERTIAN", "ALTERNATE"]
+)
+
 _PROCESSES = multiprocessing.cpu_count()
 
 
-def ray_color(ray: Ray, world: HittableList, depth: int) -> Vec3:
+def ray_color(ray: Ray, world: HittableList, depth: int, diffuse_mode=DIFFUSE_MODE.SIMPLE) -> Vec3:
     """Calculate pixel color."""
     # Protect against recursion limit:
     # If we have exceeded the ray bounce limit, no more light is gathered.
@@ -32,8 +39,23 @@ def ray_color(ray: Ray, world: HittableList, depth: int) -> Vec3:
 
     hit, record = world.hit(ray, 0.0001, math.inf)
     if hit:
-        target = record.point + record.normal + random_in_unit_sphere().unit_vector()
-        return 0.5 * ray_color(Ray(record.point, target - record.point), world, depth-1)
+        if diffuse_mode == DIFFUSE_MODE.SIMPLE:
+            target = record.point + record.normal + random_in_unit_sphere()
+        elif diffuse_mode == DIFFUSE_MODE.LAMBERTIAN:
+            target = record.point + record.normal + random_in_unit_sphere().unit_vector()
+        elif diffuse_mode == DIFFUSE_MODE.ALTERNATE:
+            target = record.point + random_in_hemisphere(record.normal)
+        return (
+            0.5 * ray_color(
+                Ray(
+                    record.point,
+                    target - record.point
+                ),
+                world,
+                depth-1,
+                diffuse_mode=diffuse_mode,
+            )
+        )
 
     unit_direction = ray.direction.unit_vector()
     parameter = 0.5 * (unit_direction.y + 1.0)  # remap from -1<x<1 to 0<x<1
@@ -49,6 +71,7 @@ def _scanline(scanline, kwargs):
     camera = kwargs.get("camera")
     world = kwargs.get("world")
     max_depth = kwargs.get("max_depth")
+    diffuse_mode = kwargs.get("diffuse_mode", DIFFUSE_MODE.SIMPLE)
 
     pixels = []
 
@@ -65,7 +88,7 @@ def _scanline(scanline, kwargs):
                 v = (scanline + random.random()) / (resy - 1)
                 ray = camera.get_ray(u, v)
                 # point = ray.point_at_parameter(2.0)
-                pixel_color += ray_color(ray, world, max_depth)
+                pixel_color += ray_color(ray, world, max_depth, diffuse_mode=diffuse_mode)
             pixels.append(pixel_color.as_string(samples))
 
     return pixels
@@ -115,7 +138,7 @@ def _image(test=False, **kwargs):
     return (pixel_color for pixel_row in results for pixel_color in pixel_row)
 
 
-def image(path=None):
+def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE):
     """Render image."""
     if not path:
         path = "image.ppm"
@@ -166,6 +189,7 @@ def image(path=None):
         world=world,
         samples=samples,
         max_depth=max_depth,
+        diffuse_mode=diffuse_mode,
     )
 
     with open(path, "w", encoding="utf-8") as f:
@@ -203,6 +227,6 @@ def hello_world(path=None):
             f.write(f"{pixel}\n")
 
 
-def main():
+def main(diffuse_mode=DIFFUSE_MODE.SIMPLE):
     """Main entry point."""
-    image()
+    image(diffuse_mode=diffuse_mode)

@@ -43,7 +43,6 @@ def ray_color(ray: Ray, world: HittableList, depth: int) -> Vec3:
 
 def _scanline(scanline, kwargs):
     test = kwargs.get("test", False)
-    verbose = kwargs.get("verbose", False)
     resx = kwargs.get("resx", 0)
     resy = kwargs.get("resy", 0)
     samples = kwargs.get("samples", 1)
@@ -52,9 +51,6 @@ def _scanline(scanline, kwargs):
     max_depth = kwargs.get("max_depth")
 
     pixels = []
-
-    if verbose:
-        print(f"Scanlines remaining: {scanline}", flush=True)
 
     if test:
         for i in range(resx):
@@ -97,9 +93,9 @@ def render_progress(tasks_registry, task_num, total, _):
     print(f"Progress: |{progress}| {percent}% complete", end="\r", flush=True)
 
 
-def _image(verbose=False, test=False, **kwargs):
+def _image(test=False, **kwargs):
     resy = kwargs.get("resy")
-    kwargs.update({"test": test, "verbose": verbose})
+    kwargs.update({"test": test})
 
     results = []
     tasks_registry = {}  # used by passing by reference to print the progress bar
@@ -119,7 +115,7 @@ def _image(verbose=False, test=False, **kwargs):
     return (pixel_color for pixel_row in results for pixel_color in pixel_row)
 
 
-def image(path=None, verbose=False):
+def image(path=None):
     """Render image."""
     if not path:
         path = "image.ppm"
@@ -163,7 +159,6 @@ def image(path=None, verbose=False):
     ]
 
     pixels = _image(
-        verbose=verbose,
         test=False,
         resx=resx,
         resy=resy,
@@ -179,11 +174,8 @@ def image(path=None, verbose=False):
         for pixel in pixels:
             f.write(f"{pixel}\n")
 
-    if verbose:
-        print("Done")
 
-
-def hello_world(path=None, verbose=False):
+def hello_world(path=None):
     """Hello World render of ppm image file."""
     if not path:
         path = "hello_world.ppm"
@@ -200,7 +192,6 @@ def hello_world(path=None, verbose=False):
     ]
 
     pixels = _image(
-        verbose=verbose,
         test=True,
         resx=resx,
         resy=resy,
@@ -210,9 +201,6 @@ def hello_world(path=None, verbose=False):
         f.writelines(header)
         for pixel in pixels:
             f.write(f"{pixel}\n")
-
-    if verbose:
-        print("Done")
 
 
 def main():

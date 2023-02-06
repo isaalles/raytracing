@@ -15,13 +15,12 @@ def main():
     parser = argparse.ArgumentParser(prog="pathtracer")
     parser.add_argument("mode", nargs="?", choices=("hello-world", "image"), default="image")
     parser.add_argument("-p", "--path")
-    parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args()
     start_time = time.time()
     if args.mode == "hello-world":
-        render.hello_world(path=args.path, verbose=args.verbose)
+        render.hello_world(path=args.path)
     elif args.mode == "image":
-        render.image(path=args.path, verbose=args.verbose)
+        render.image(path=args.path)
     else:
         render.main()
     print(f"Render took {time.time() - start_time:0.2f}s")

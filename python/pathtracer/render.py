@@ -32,7 +32,7 @@ def ray_color(ray: Ray, world: HittableList, depth: int) -> Vec3:
 
     hit, record = world.hit(ray, 0.0001, math.inf)
     if hit:
-        target = record.point + record.normal + random_in_unit_sphere()
+        target = record.point + record.normal + random_in_unit_sphere().unit_vector()
         return 0.5 * ray_color(Ray(record.point, target - record.point), world, depth-1)
 
     unit_direction = ray.direction.unit_vector()

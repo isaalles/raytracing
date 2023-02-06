@@ -1,5 +1,6 @@
 """Render."""
 
+import functools
 import math
 import multiprocessing
 import random
@@ -74,13 +75,47 @@ def _scanline(scanline, kwargs):
     return pixels
 
 
+def render_progress(tasks_registry, task_num, total, _):
+    """Print progress bar.
+
+    This is used as the callback function for pool.apply_async which gets passed
+    the process result, thus the use of `_` in the function definition.
+
+    Args:
+        tasks_registry (dict): Registry passed by reference to keep track of
+            how many tasks of the pool are done.
+        task_num (int): The task number that just completed - this not necessarily
+            equivalent to the num of tasks done (thus the registry parameter).
+        total (int): Total number of tasks expected, so we can calculate the
+            percentage of tasks done.
+
+    """
+    block_char = "\u2588"
+    tasks_registry[str(task_num)] = task_num
+    percent = 100 * len(tasks_registry) // total
+    progress = block_char * percent + '-' * (100 - percent)
+    print(f"Progress: |{progress}| {percent}% complete", end="\r", flush=True)
+
+
 def _image(verbose=False, test=False, **kwargs):
     resy = kwargs.get("resy")
     kwargs.update({"test": test, "verbose": verbose})
 
-    with multiprocessing.Pool(_PROCESSES) as pool:
-        results = pool.starmap(_scanline, ((j, kwargs) for j in range(resy-1, -1, -1)))
+    results = []
+    tasks_registry = {}  # used by passing by reference to print the progress bar
 
+    with multiprocessing.Pool(_PROCESSES) as pool:
+        pool_results = [
+            pool.apply_async(
+                _scanline,
+                args=(j, kwargs),
+                callback=functools.partial(render_progress, tasks_registry, resy-j, resy)
+            )
+            for j in range(resy-1, -1, -1)
+        ]
+        results = [result.get() for result in pool_results]
+
+    print()  # ensure new line for future prints
     return (pixel_color for pixel_row in results for pixel_color in pixel_row)
 
 

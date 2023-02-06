@@ -121,8 +121,8 @@ def image(path=None):
         path = "image.ppm"
 
     # Image
-    aspect_ratio = 2.0 / 1.0
-    resx = 200
+    aspect_ratio = 16.0 / 9.0
+    resx = 400
     resy = int(resx // aspect_ratio)
 
     samples = 10

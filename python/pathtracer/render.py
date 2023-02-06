@@ -1,6 +1,7 @@
 """Render."""
 
 import math
+import multiprocessing
 import random
 
 from .camera import Camera
@@ -17,6 +18,8 @@ from .vec3 import (
 _BLACK = Color(0.0, 0.0, 0.0)
 _WHITE = Color(1.0, 1.0, 1.0)
 _LIGHT_BLUE = Color(0.5, 0.7, 1.0)
+
+_PROCESSES = multiprocessing.cpu_count()
 
 
 def ray_color(ray: Ray, world: HittableList, depth: int) -> Vec3:
@@ -37,20 +40,25 @@ def ray_color(ray: Ray, world: HittableList, depth: int) -> Vec3:
     return (1 - parameter)*_WHITE + parameter*_LIGHT_BLUE  # lerp
 
 
-def _scanline(scanline, test=False, **kwargs):
-    resx = kwargs.get("resx")
-    resy = kwargs.get("resy")
-    samples = kwargs.get("samples")
+def _scanline(scanline, kwargs):
+    test = kwargs.get("test", False)
+    verbose = kwargs.get("verbose", False)
+    resx = kwargs.get("resx", 0)
+    resy = kwargs.get("resy", 0)
+    samples = kwargs.get("samples", 1)
     camera = kwargs.get("camera")
     world = kwargs.get("world")
     max_depth = kwargs.get("max_depth")
 
-    lines = []
+    pixels = []
+
+    if verbose:
+        print(f"Scanlines remaining: {scanline}", flush=True)
 
     if test:
         for i in range(resx):
-            col = Color(i / (resx-1), scanline / (resy-1), 0.2)
-            lines.append(col.as_string())
+            pixel_color = Color(i / (resx-1), scanline / (resy-1), 0.2)
+            pixels.append(pixel_color.as_string())
 
     else:
         for i in range(resx):
@@ -61,23 +69,19 @@ def _scanline(scanline, test=False, **kwargs):
                 ray = camera.get_ray(u, v)
                 # point = ray.point_at_parameter(2.0)
                 pixel_color += ray_color(ray, world, max_depth)
+            pixels.append(pixel_color.as_string(samples))
 
-            lines.append(pixel_color.as_string(samples))
-
-    return lines
+    return pixels
 
 
 def _image(verbose=False, test=False, **kwargs):
     resy = kwargs.get("resy")
+    kwargs.update({"test": test, "verbose": verbose})
 
-    lines = []
+    with multiprocessing.Pool(_PROCESSES) as pool:
+        results = pool.starmap(_scanline, ((j, kwargs) for j in range(resy-1, -1, -1)))
 
-    for j in range(resy-1, -1, -1):
-        if verbose:
-            print(f"Scanlines remaining: {j}")
-        lines.extend(_scanline(j, test=test, **kwargs))
-
-    return lines
+    return (pixel_color for pixel_row in results for pixel_color in pixel_row)
 
 
 def image(path=None, verbose=False):
@@ -117,28 +121,28 @@ def image(path=None, verbose=False):
     )
 
     # Render
-    lines = [
-        "P3",
-        f"{resx} {resy}",
-        "255",
+    header = [
+        "P3\n",
+        f"{resx} {resy}\n",
+        "255\n",
     ]
 
-    lines.extend(
-        _image(
-            verbose=verbose,
-            test=False,
-            resx=resx,
-            resy=resy,
-            camera=camera,
-            world=world,
-            samples=samples,
-            max_depth=max_depth,
-        )
+    pixels = _image(
+        verbose=verbose,
+        test=False,
+        resx=resx,
+        resy=resy,
+        camera=camera,
+        world=world,
+        samples=samples,
+        max_depth=max_depth,
     )
 
     with open(path, "w", encoding="utf-8") as f:
-        f.writelines("\n".join(lines))
-        f.write("\n")
+        f.writelines(header)
+        # `pixels` is a generator so let's extract one value at a time
+        for pixel in pixels:
+            f.write(f"{pixel}\n")
 
     if verbose:
         print("Done")
@@ -154,24 +158,23 @@ def hello_world(path=None, verbose=False):
     resy = 100
 
     # Render
-    lines = [
-        "P3",
-        f"{resx} {resy}",
-        "255",
+    header = [
+        "P3\n",
+        f"{resx} {resy}\n",
+        "255\n",
     ]
 
-    lines.extend(
-        _image(
-            verbose=verbose,
-            test=True,
-            resx=resx,
-            resy=resy,
-        )
+    pixels = _image(
+        verbose=verbose,
+        test=True,
+        resx=resx,
+        resy=resy,
     )
 
     with open(path, "w", encoding="utf-8") as f:
-        f.writelines("\n".join(lines))
-        f.write("\n")
+        f.writelines(header)
+        for pixel in pixels:
+            f.write(f"{pixel}\n")
 
     if verbose:
         print("Done")

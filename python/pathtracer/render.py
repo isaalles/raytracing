@@ -172,8 +172,8 @@ def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False):
     else:
         mat_ground = material.Lambertian(Color(0.8, 0.8, 0.0))
         mat_center = material.Lambertian(Color(0.7, 0.3, 0.3))
-        mat_left = material.Metal(Color(0.8, 0.8, 0.8))
-        mat_right = material.Metal(Color(0.8, 0.6, 0.2))
+        mat_left = material.Metal(Color(0.8, 0.8, 0.8), 0.3)
+        mat_right = material.Metal(Color(0.8, 0.6, 0.2), 1.0)
 
     # World
     world = HittableList([

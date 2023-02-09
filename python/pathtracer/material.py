@@ -4,6 +4,7 @@ from collections import namedtuple
 
 from .ray import Ray
 from .vec3 import (
+    random_in_unit_sphere,
     random_unit_vector,
     reflect,
 )
@@ -45,9 +46,13 @@ class Lambertian(_Material):
 class Metal(_Material):
     """Metal."""
 
+    def __init__(self, albedo, fuzz=0.0):
+        super().__init__(albedo)
+        self.fuzz = fuzz if fuzz < 1 else 1.0
+
     def scatter(self, ray_in, record):
         reflected = reflect(ray_in.direction.unit_vector(), record.normal)
-        scattered = Ray(record.point, reflected)
+        scattered = Ray(record.point, reflected + self.fuzz*random_in_unit_sphere())
         attenuation = self.albedo
 
         return _RayAttenuation(

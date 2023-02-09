@@ -150,7 +150,7 @@ def _image(test=False, **kwargs):
     return (pixel_color for pixel_row in results for pixel_color in pixel_row)
 
 
-def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE):
+def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False):
     """Render image."""
     if not path:
         path = "image.ppm"
@@ -164,10 +164,16 @@ def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE):
     max_depth = 50
 
     # Materials
-    mat_ground = material.Lambertian(Color(0.8, 0.8, 0.0))
-    mat_center = material.Lambertian(Color(0.7, 0.3, 0.3))
-    mat_left = material.Metal(Color(0.8, 0.8, 0.8))
-    mat_right = material.Metal(Color(0.8, 0.6, 0.2))
+    if greyshaded:
+        mat_ground = None
+        mat_center = None
+        mat_left = None
+        mat_right = None
+    else:
+        mat_ground = material.Lambertian(Color(0.8, 0.8, 0.0))
+        mat_center = material.Lambertian(Color(0.7, 0.3, 0.3))
+        mat_left = material.Metal(Color(0.8, 0.8, 0.8))
+        mat_right = material.Metal(Color(0.8, 0.6, 0.2))
 
     # World
     world = HittableList([

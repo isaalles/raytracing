@@ -68,14 +68,17 @@ def main():
         default=render.DIFFUSE_MODE.SIMPLE,
         dest="diffuse_mode",
     )
+    parser.add_argument("-g", "--grey", action="store_true", default=False)
     args = parser.parse_args()
     start_time = time.time()
     if args.mode == "hello-world":
         render.hello_world(path=args.path)
     elif args.mode == "image":
-        render.image(path=args.path, diffuse_mode=args.diffuse_mode)
+        render.image(
+            path=args.path, diffuse_mode=args.diffuse_mode, greyshaded=args.grey
+        )
     else:
-        render.main(diffuse_mode=args.diffuse_mode)
+        render.main()
     print(f"Render took {time.time() - start_time:0.2f}s")
     return 0
 

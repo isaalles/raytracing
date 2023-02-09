@@ -3,11 +3,12 @@
 
 class HitRecord:
     """To record ray hits."""
-    def __init__(self, t, point, normal, front_face=True):
+    def __init__(self, t, point, normal, front_face=True, material=None):
         self.t = t
         self.point = point
         self.normal = normal
         self.front_face = front_face
+        self.material = material
 
     def set_face_normal(self, ray, outward_normal):
         """Front face vs back face."""

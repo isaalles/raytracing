@@ -33,6 +33,15 @@ class Vec3:
         """Get unit vector."""
         return self / self.length()
 
+    def near_zero(self):
+        """Whether the vector is close to zero in all dimensions."""
+        zero = 1e-8
+        return (
+            abs(self.x) < zero
+            and abs(self.y) < zero
+            and abs(self.z) < zero
+        )
+
     def dot(self, other) -> float:
         """Calculate the dot product with another vector."""
         assert isinstance(other, Vec3)
@@ -260,9 +269,19 @@ def random_in_unit_sphere():
         return point
 
 
+def random_unit_vector():
+    """Unit random in sphere vector."""
+    return random_in_unit_sphere().unit_vector()
+
+
 def random_in_hemisphere(normal):
     """Check if point is in the same hemisphere as the normal."""
     in_unit_sphere = random_in_unit_sphere()
     if in_unit_sphere.dot(normal) > 0.0:
         return in_unit_sphere
     return -in_unit_sphere
+
+
+def reflect(vector_a, vector_b):
+    """Reflected ray."""
+    return vector_a - 2 * vector_a.dot(vector_b) * vector_b

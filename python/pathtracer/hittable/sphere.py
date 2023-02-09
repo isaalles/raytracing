@@ -7,9 +7,10 @@ from ._base import (Hittable, HitRecord)
 
 class Sphere(Hittable):
     """Sphere."""
-    def __init__(self, center, radius: float):
+    def __init__(self, center, radius: float, material=None):
         self.center = center
         self.radius = radius
+        self.material = material
 
     def hit(self, ray, t_min, t_max):
         oc = ray.origin - self.center
@@ -24,7 +25,7 @@ class Sphere(Hittable):
             if t_min <= root <= t_max:
                 point = ray.point_at_parameter(root)
                 normal = (point - self.center) / self.radius
-                record = HitRecord(root, point, normal)
+                record = HitRecord(root, point, normal, material=self.material)
                 record.set_face_normal(ray, normal)
                 return (True, record)
 
@@ -32,7 +33,7 @@ class Sphere(Hittable):
             if t_min <= root <= t_max:
                 point = ray.point_at_parameter(root)
                 normal = (point - self.center) / self.radius
-                record = HitRecord(root, point, normal)
+                record = HitRecord(root, point, normal, material=self.material)
                 record.set_face_normal(ray, normal)
                 return (True, record)
 

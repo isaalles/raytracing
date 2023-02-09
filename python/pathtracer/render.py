@@ -8,6 +8,7 @@ import random
 
 from .camera import Camera
 from .hittable import (HittableList, Sphere)
+from . import material
 from .ray import Ray
 from .vec3 import (
     Color,
@@ -15,6 +16,7 @@ from .vec3 import (
     Vec3,
     random_in_hemisphere,
     random_in_unit_sphere,
+    random_unit_vector,
 )
 
 
@@ -39,23 +41,33 @@ def ray_color(ray: Ray, world: HittableList, depth: int, diffuse_mode=DIFFUSE_MO
 
     hit, record = world.hit(ray, 0.0001, math.inf)
     if hit:
-        if diffuse_mode == DIFFUSE_MODE.SIMPLE:
-            target = record.point + record.normal + random_in_unit_sphere()
-        elif diffuse_mode == DIFFUSE_MODE.LAMBERTIAN:
-            target = record.point + record.normal + random_in_unit_sphere().unit_vector()
-        elif diffuse_mode == DIFFUSE_MODE.ALTERNATE:
-            target = record.point + random_in_hemisphere(record.normal)
-        return (
-            0.5 * ray_color(
-                Ray(
-                    record.point,
-                    target - record.point
-                ),
-                world,
-                depth-1,
-                diffuse_mode=diffuse_mode,
+        material_ = record.material
+        if material_:
+            light_scatter = material_.scatter(ray, record)
+            if light_scatter.scatter:
+                return (
+                    light_scatter.attenuation
+                    * ray_color(light_scatter.scattered, world, depth-1)
+                )
+            return _BLACK
+        else:  # grey shaded diffuse
+            if diffuse_mode == DIFFUSE_MODE.SIMPLE:
+                target = record.point + record.normal + random_in_unit_sphere()
+            elif diffuse_mode == DIFFUSE_MODE.LAMBERTIAN:
+                target = record.point + record.normal + random_unit_vector()
+            elif diffuse_mode == DIFFUSE_MODE.ALTERNATE:
+                target = record.point + random_in_hemisphere(record.normal)
+            return (
+                0.5 * ray_color(
+                    Ray(
+                        record.point,
+                        target - record.point
+                    ),
+                    world,
+                    depth-1,
+                    diffuse_mode=diffuse_mode,
+                )
             )
-        )
 
     unit_direction = ray.direction.unit_vector()
     parameter = 0.5 * (unit_direction.y + 1.0)  # remap from -1<x<1 to 0<x<1
@@ -151,10 +163,18 @@ def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE):
     samples = 10
     max_depth = 50
 
+    # Materials
+    mat_ground = material.Lambertian(Color(0.8, 0.8, 0.0))
+    mat_center = material.Lambertian(Color(0.7, 0.3, 0.3))
+    mat_left = material.Metal(Color(0.8, 0.8, 0.8))
+    mat_right = material.Metal(Color(0.8, 0.6, 0.2))
+
     # World
     world = HittableList([
-        Sphere(Point3(0, 0, -1), 0.5),
-        Sphere(Point3(0, -100.5, -1), 100),
+        Sphere(Point3(0.0, -100.5, -1.0), 100.0, material=mat_ground),
+        Sphere(Point3(0.0, 0.0, -1.0), 0.5, material=mat_center),
+        Sphere(Point3(-1.0, 0.0, -1.0), 0.5, material=mat_left),
+        Sphere(Point3(1.0, 0.0, -1.0), 0.5, material=mat_right),
     ])
 
     # Camera

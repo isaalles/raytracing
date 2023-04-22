@@ -2,6 +2,7 @@
 
 from collections import namedtuple
 import math
+import random
 
 from .ray import Ray
 from .vec3 import (
@@ -82,6 +83,13 @@ class Dielectric(_Material):
         super().__init__()
         self.index_of_refraction = index_of_refraction
 
+    @staticmethod
+    def reflectance(cosine: float, ref_ifx: float) -> float:
+        """Use Schlick's approximation for reflectance."""
+        r0 = (1 - ref_ifx) / (1 + ref_ifx)
+        r0 = r0 * r0
+        return r0 + (1 - r0) * pow((1 - cosine), 5)
+
     def scatter(self, ray_in, record):
         if record.front_face:
             refraction_ratio = 1.0 / self.index_of_refraction
@@ -93,7 +101,10 @@ class Dielectric(_Material):
         sin_theta = math.sqrt(1.0 - cos_theta * cos_theta)
 
         cannot_refract = refraction_ratio * sin_theta > 1.0
-        if cannot_refract:
+        if (
+            cannot_refract
+            or self.reflectance(cos_theta, refraction_ratio) > random.random()
+        ):
             # cannot refract, so we reflect
             direction = reflect(unit_direction, record.normal)
         else:

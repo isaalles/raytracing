@@ -16,9 +16,6 @@ _RayAttenuation = namedtuple("RayAttenuation", ["scatter", "attenuation", "scatt
 class _Material:
     """Base material class implementation."""
 
-    def __init__(self, albedo):
-        self.albedo = albedo
-
     def scatter(self, ray_in, record):
         """Whether we should scatter the light and how."""
         raise NotImplementedError
@@ -26,6 +23,10 @@ class _Material:
 
 class Lambertian(_Material):
     """Lambertian (diffuse) material."""
+
+    def __init__(self, albedo):
+        super().__init__()
+        self.albedo = albedo
 
     def scatter(self, ray_in, record):
         scatter_direction = record.normal + random_unit_vector()
@@ -48,7 +49,8 @@ class Metal(_Material):
     """Metal."""
 
     def __init__(self, albedo, fuzz=0.0):
-        super().__init__(albedo)
+        super().__init__()
+        self.albedo = albedo
         self.fuzz = fuzz if fuzz < 1 else 1.0
 
     def scatter(self, ray_in, record):

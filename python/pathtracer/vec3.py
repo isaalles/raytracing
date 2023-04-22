@@ -283,3 +283,11 @@ def random_in_hemisphere(normal):
 def reflect(vector_a, vector_b):
     """Reflected ray."""
     return vector_a - 2 * vector_a.dot(vector_b) * vector_b
+
+
+def refract(uv: Vec3, n: Vec3, etai_over_etat):
+    """Refracted ray."""
+    cos_theta = min(-uv.dot(n), 1.0)
+    r_out_perp = etai_over_etat * (uv + cos_theta * n)
+    r_out_parallel = -math.sqrt(abs(1.0 - r_out_perp.squared_length())) * n
+    return r_out_perp + r_out_parallel

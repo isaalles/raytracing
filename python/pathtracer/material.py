@@ -4,13 +4,22 @@ from collections import namedtuple
 
 from .ray import Ray
 from .vec3 import (
+    Color,
     random_in_unit_sphere,
     random_unit_vector,
     reflect,
+    refract,
 )
 
 
 _RayAttenuation = namedtuple("RayAttenuation", ["scatter", "attenuation", "scattered"])
+"""tuple: for use as the :func:`scatter` return value.
+
+- scatter (bool): whether the light should scatter,
+- atteniation (Color): what colour should it scatter with,
+- scattered (Ray): the ray scattered.
+
+"""
 
 
 class _Material:
@@ -62,4 +71,28 @@ class Metal(_Material):
             scatter=scattered.direction.dot(record.normal) > 0,
             scattered=scattered,
             attenuation=attenuation,
+        )
+
+
+class Dielectric(_Material):
+    """Dielectric."""
+
+    def __init__(self, index_of_refraction):
+        super().__init__()
+        self.index_of_refraction = index_of_refraction
+
+    def scatter(self, ray_in, record):
+        if record.front_face:
+            refraction_ratio = 1.0 / self.index_of_refraction
+        else:
+            refraction_ratio = self.index_of_refraction
+
+        unit_direction = ray_in.direction.unit_vector()
+        refracted = refract(unit_direction, record.normal, refraction_ratio)
+
+        scattered = Ray(record.point, refracted)
+        return _RayAttenuation(
+            scatter=True,
+            attenuation=Color(1.0, 1.0, 1.0),
+            scattered=scattered,
         )

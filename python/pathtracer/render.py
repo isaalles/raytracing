@@ -177,7 +177,7 @@ def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False):
         [
             Sphere(Point3(0.0, -100.5, -1.0), 100.0, material=mat_ground),
             Sphere(Point3(0.0, 0.0, -1.0), 0.5, material=mat_center),
-            Sphere(Point3(-1.0, 0.0, -1.0), 0.5, material=mat_left),
+            Sphere(Point3(-1.0, 0.0, -1.0), -0.4, material=mat_left),
             Sphere(Point3(1.0, 0.0, -1.0), 0.5, material=mat_right),
         ]
     )

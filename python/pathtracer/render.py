@@ -162,42 +162,26 @@ def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False):
 
     # Materials
     if greyshaded:
-        mat_ground = None
-        mat_center = None
         mat_left = None
         mat_right = None
     else:
-        mat_ground = material.Lambertian(Color(0.8, 0.8, 0.0))
-        mat_center = material.Lambertian(Color(0.1, 0.2, 0.5))
-        mat_left = material.Dielectric(1.5)
-        mat_right = material.Metal(Color(0.8, 0.6, 0.2), 1.0)
+        mat_left = material.Lambertian(Color(0, 0, 1))
+        mat_right = material.Lambertian(Color(1, 0, 0))
 
     # World
+    radius = math.cos(math.pi / 4)
+
     world = HittableList(
         [
-            Sphere(Point3(0.0, -100.5, -1.0), 100.0, material=mat_ground),
-            Sphere(Point3(0.0, 0.0, -1.0), 0.5, material=mat_center),
-            Sphere(Point3(-1.0, 0.0, -1.0), -0.4, material=mat_left),
-            Sphere(Point3(1.0, 0.0, -1.0), 0.5, material=mat_right),
+            Sphere(Point3(-radius, 0.0, -1.0), radius, material=mat_left),
+            Sphere(Point3(radius, 0.0, -1.0), radius, material=mat_right),
         ]
     )
 
     # Camera
-    # For square pixels, we want the viewport's aspect ratio to match our image's.
-    viewport_height = 2.0
-    # viewport_width is calculated with the height and the aspect ratio
-    focal_length = 1.0
-
-    origin = Point3(0, 0, 0)
-    # The horizontal and vertical vectors are origin + the width/height in the
-    # corresponding axis; these are calculated directly by the camera object.
-
-    camera = Camera(
-        aspect_ratio=aspect_ratio,
-        viewport_height=viewport_height,
-        focal_length=focal_length,
-        origin=origin,
-    )
+    # Let's define our camera with an adjustable vertical field of view
+    # and an aspect_ratio (to get to the horizontal value)
+    camera = Camera(vfov=90.0, aspect_ratio=aspect_ratio)
 
     # Render
     header = [

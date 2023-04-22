@@ -168,7 +168,7 @@ def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False):
         mat_right = None
     else:
         mat_ground = material.Lambertian(Color(0.8, 0.8, 0.0))
-        mat_center = material.Dielectric(1.5)
+        mat_center = material.Lambertian(Color(0.1, 0.2, 0.5))
         mat_left = material.Dielectric(1.5)
         mat_right = material.Metal(Color(0.8, 0.6, 0.2), 1.0)
 

@@ -1,6 +1,7 @@
 """Material."""
 
 from collections import namedtuple
+import math
 
 from .ray import Ray
 from .vec3 import (
@@ -88,11 +89,19 @@ class Dielectric(_Material):
             refraction_ratio = self.index_of_refraction
 
         unit_direction = ray_in.direction.unit_vector()
-        refracted = refract(unit_direction, record.normal, refraction_ratio)
+        cos_theta = min(-unit_direction.dot(record.normal), 1.0)
+        sin_theta = math.sqrt(1.0 - cos_theta * cos_theta)
 
-        scattered = Ray(record.point, refracted)
+        cannot_refract = refraction_ratio * sin_theta > 1.0
+        if cannot_refract:
+            # cannot refract, so we reflect
+            direction = reflect(unit_direction, record.normal)
+        else:
+            direction = refract(unit_direction, record.normal, refraction_ratio)
+
+        scattered = Ray(record.point, direction)
         return _RayAttenuation(
             scatter=True,
-            attenuation=Color(1.0, 1.0, 1.0),
+            attenuation=Color(1.0, 1.0, 1.0),  # glass surface absorbs nothing
             scattered=scattered,
         )

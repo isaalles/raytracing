@@ -6,6 +6,7 @@ import random
 
 class Vec3:
     """Vector 3 implementation."""
+
     def __init__(self, x: float = 0, y: float = 0, z: float = 0) -> None:
         self._values = [x, y, z]
 
@@ -16,7 +17,7 @@ class Vec3:
 
     def squared_length(self) -> float:
         """Calculate the vector squared length."""
-        return self.x*self.x + self.y*self.y + self.z*self.z
+        return self.x * self.x + self.y * self.y + self.z * self.z
 
     def length(self) -> float:
         """Calculate vector length."""
@@ -36,11 +37,7 @@ class Vec3:
     def near_zero(self):
         """Whether the vector is close to zero in all dimensions."""
         zero = 1e-8
-        return (
-            abs(self.x) < zero
-            and abs(self.y) < zero
-            and abs(self.z) < zero
-        )
+        return abs(self.x) < zero and abs(self.y) < zero and abs(self.z) < zero
 
     def dot(self, other) -> float:
         """Calculate the dot product with another vector."""
@@ -52,7 +49,7 @@ class Vec3:
         assert isinstance(other, Vec3)
         return Vec3(
             self.y * other.z - other.y * self.z,
-            - (self.x * other.z - other.x * self.z),
+            -(self.x * other.z - other.x * self.z),
             self.x * other.y - other.x * self.y,
         )
 
@@ -227,7 +224,7 @@ class Vec3:
         return Vec3(
             random.uniform(min_value, max_value),
             random.uniform(min_value, max_value),
-            random.uniform(min_value, max_value)
+            random.uniform(min_value, max_value),
         )
 
 
@@ -237,6 +234,7 @@ class Point3(Vec3):
 
 class Color(Vec3):
     """Color."""
+
     def as_string(self, samples_per_pixel=1):
         """Translate to a [0, 255] color value as string for each component."""
         r = self.r

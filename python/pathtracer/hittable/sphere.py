@@ -2,11 +2,12 @@
 
 import math
 
-from ._base import (Hittable, HitRecord)
+from ._base import Hittable, HitRecord
 
 
 class Sphere(Hittable):
     """Sphere."""
+
     def __init__(self, center, radius: float, material=None):
         self.center = center
         self.radius = radius
@@ -17,7 +18,7 @@ class Sphere(Hittable):
         a = ray.direction.dot(ray.direction)
         b = oc.dot(ray.direction)
         c = oc.dot(oc) - self.radius * self.radius
-        discriminant = b*b - a*c
+        discriminant = b * b - a * c
 
         # Find the nearest root that lies in the acceptable range.
         if discriminant >= 0:

@@ -7,7 +7,7 @@ import multiprocessing
 import random
 
 from .camera import Camera
-from .hittable import (HittableList, Sphere)
+from .hittable import HittableList, Sphere
 from . import material
 from .ray import Ray
 from .vec3 import (
@@ -24,15 +24,14 @@ _BLACK = Color(0.0, 0.0, 0.0)
 _WHITE = Color(1.0, 1.0, 1.0)
 _LIGHT_BLUE = Color(0.5, 0.7, 1.0)
 
-DIFFUSE_MODE = enum.Enum(
-    "DIFFUSE_MODE",
-    ["SIMPLE", "LAMBERTIAN", "ALTERNATE"]
-)
+DIFFUSE_MODE = enum.Enum("DIFFUSE_MODE", ["SIMPLE", "LAMBERTIAN", "ALTERNATE"])
 
 _PROCESSES = multiprocessing.cpu_count()
 
 
-def ray_color(ray: Ray, world: HittableList, depth: int, diffuse_mode=DIFFUSE_MODE.SIMPLE) -> Vec3:
+def ray_color(
+    ray: Ray, world: HittableList, depth: int, diffuse_mode=DIFFUSE_MODE.SIMPLE
+) -> Vec3:
     """Calculate pixel color."""
     # Protect against recursion limit:
     # If we have exceeded the ray bounce limit, no more light is gathered.
@@ -45,9 +44,8 @@ def ray_color(ray: Ray, world: HittableList, depth: int, diffuse_mode=DIFFUSE_MO
         if material_:
             light_scatter = material_.scatter(ray, record)
             if light_scatter.scatter:
-                return (
-                    light_scatter.attenuation
-                    * ray_color(light_scatter.scattered, world, depth-1)
+                return light_scatter.attenuation * ray_color(
+                    light_scatter.scattered, world, depth - 1
                 )
             return _BLACK
         else:  # grey shaded diffuse
@@ -57,22 +55,17 @@ def ray_color(ray: Ray, world: HittableList, depth: int, diffuse_mode=DIFFUSE_MO
                 target = record.point + record.normal + random_unit_vector()
             elif diffuse_mode == DIFFUSE_MODE.ALTERNATE:
                 target = record.point + random_in_hemisphere(record.normal)
-            return (
-                0.5 * ray_color(
-                    Ray(
-                        record.point,
-                        target - record.point
-                    ),
-                    world,
-                    depth-1,
-                    diffuse_mode=diffuse_mode,
-                )
+            return 0.5 * ray_color(
+                Ray(record.point, target - record.point),
+                world,
+                depth - 1,
+                diffuse_mode=diffuse_mode,
             )
 
     unit_direction = ray.direction.unit_vector()
     parameter = 0.5 * (unit_direction.y + 1.0)  # remap from -1<x<1 to 0<x<1
     # blended_value = (1 - t) * start_value + t * end_value
-    return (1 - parameter)*_WHITE + parameter*_LIGHT_BLUE  # lerp
+    return (1 - parameter) * _WHITE + parameter * _LIGHT_BLUE  # lerp
 
 
 def _scanline(scanline, kwargs):
@@ -89,7 +82,7 @@ def _scanline(scanline, kwargs):
 
     if test:
         for i in range(resx):
-            pixel_color = Color(i / (resx-1), scanline / (resy-1), 0.2)
+            pixel_color = Color(i / (resx - 1), scanline / (resy - 1), 0.2)
             pixels.append(pixel_color.as_string())
 
     else:
@@ -100,7 +93,9 @@ def _scanline(scanline, kwargs):
                 v = (scanline + random.random()) / (resy - 1)
                 ray = camera.get_ray(u, v)
                 # point = ray.point_at_parameter(2.0)
-                pixel_color += ray_color(ray, world, max_depth, diffuse_mode=diffuse_mode)
+                pixel_color += ray_color(
+                    ray, world, max_depth, diffuse_mode=diffuse_mode
+                )
             pixels.append(pixel_color.as_string(samples))
 
     return pixels
@@ -124,7 +119,7 @@ def render_progress(tasks_registry, task_num, total, _):
     block_char = "\u2588"
     tasks_registry[str(task_num)] = task_num
     percent = 100 * len(tasks_registry) // total
-    progress = block_char * percent + '-' * (100 - percent)
+    progress = block_char * percent + "-" * (100 - percent)
     print(f"Progress: |{progress}| {percent}% complete", end="\r", flush=True)
 
 
@@ -140,9 +135,11 @@ def _image(test=False, **kwargs):
             pool.apply_async(
                 _scanline,
                 args=(j, kwargs),
-                callback=functools.partial(render_progress, tasks_registry, resy-j, resy)
+                callback=functools.partial(
+                    render_progress, tasks_registry, resy - j, resy
+                ),
             )
-            for j in range(resy-1, -1, -1)
+            for j in range(resy - 1, -1, -1)
         ]
         results = [result.get() for result in pool_results]
 
@@ -176,12 +173,14 @@ def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False):
         mat_right = material.Metal(Color(0.8, 0.6, 0.2), 1.0)
 
     # World
-    world = HittableList([
-        Sphere(Point3(0.0, -100.5, -1.0), 100.0, material=mat_ground),
-        Sphere(Point3(0.0, 0.0, -1.0), 0.5, material=mat_center),
-        Sphere(Point3(-1.0, 0.0, -1.0), 0.5, material=mat_left),
-        Sphere(Point3(1.0, 0.0, -1.0), 0.5, material=mat_right),
-    ])
+    world = HittableList(
+        [
+            Sphere(Point3(0.0, -100.5, -1.0), 100.0, material=mat_ground),
+            Sphere(Point3(0.0, 0.0, -1.0), 0.5, material=mat_center),
+            Sphere(Point3(-1.0, 0.0, -1.0), 0.5, material=mat_left),
+            Sphere(Point3(1.0, 0.0, -1.0), 0.5, material=mat_right),
+        ]
+    )
 
     # Camera
     # For square pixels, we want the viewport's aspect ratio to match our image's.

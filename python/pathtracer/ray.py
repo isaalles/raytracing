@@ -5,6 +5,7 @@ from .vec3 import Vec3
 
 class Ray:
     """Ray."""
+
     def __init__(self, origin: Vec3 = Vec3(), direction: Vec3 = Vec3()):
         self._origin = origin
         self._direction = direction

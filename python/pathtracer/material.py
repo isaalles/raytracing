@@ -15,6 +15,7 @@ _RayAttenuation = namedtuple("RayAttenuation", ["scatter", "attenuation", "scatt
 
 class _Material:
     """Base material class implementation."""
+
     def __init__(self, albedo):
         self.albedo = albedo
 
@@ -52,7 +53,7 @@ class Metal(_Material):
 
     def scatter(self, ray_in, record):
         reflected = reflect(ray_in.direction.unit_vector(), record.normal)
-        scattered = Ray(record.point, reflected + self.fuzz*random_in_unit_sphere())
+        scattered = Ray(record.point, reflected + self.fuzz * random_in_unit_sphere())
         attenuation = self.albedo
 
         return _RayAttenuation(

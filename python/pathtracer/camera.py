@@ -1,7 +1,7 @@
 """Camera."""
 
 from .ray import Ray
-from .vec3 import (Point3, Vec3)
+from .vec3 import Point3, Vec3
 
 
 class Camera:
@@ -64,7 +64,12 @@ class Camera:
     @property
     def lower_left_corner(self):
         """Viewport's lower left corner coordinate."""
-        return self.origin - self.horizontal/2 - self.vertical/2 - Vec3(0, 0, self.focal_length)
+        return (
+            self.origin
+            - self.horizontal / 2
+            - self.vertical / 2
+            - Vec3(0, 0, self.focal_length)
+        )
 
     def get_ray(self, u: float, v: float) -> Ray:
         """Camera ray."""

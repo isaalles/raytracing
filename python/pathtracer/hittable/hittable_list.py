@@ -5,6 +5,7 @@ from ._base import Hittable
 
 class HittableList(Hittable):
     """List of hittable items."""
+
     def __init__(self, hittable_list=None):
         self.hittable_list = hittable_list or []
 

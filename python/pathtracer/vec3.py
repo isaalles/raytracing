@@ -267,6 +267,16 @@ def random_in_unit_sphere():
         return point
 
 
+def random_in_unit_disk():
+    """Generate random point inside the unit disk."""
+    while True:
+        point = Vec3.random(-1, 1)
+        point.z = 0
+        if point.squared_length() >= 1:
+            continue
+        return point
+
+
 def random_unit_vector():
     """Unit random in sphere vector."""
     return random_in_unit_sphere().unit_vector()

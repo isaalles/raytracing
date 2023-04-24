@@ -185,13 +185,22 @@ def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False):
 
     # Camera
     # Let's define our camera with an adjustable vertical field of view
-    # and an aspect_ratio (to get to the horizontal value)
+    # and an aspect_ratio
+    # and an adjustable depth-of-field (dof)
+    lookfrom = Point3(3, 3, 2)
+    lookat = Point3(0, 0, -1)
+    vup = Vec3(0, 1, 0)
+    dist_to_focus = (lookfrom - lookat).length()
+    aperture = 2.0
+
     camera = Camera(
-        lookfrom=Point3(-2, 2, 1),
-        lookat=Point3(0, 0, -1),
-        vup=Vec3(0, 1, 0),
+        lookfrom=lookfrom,
+        lookat=lookat,
+        vup=vup,
         vfov=20.0,
         aspect_ratio=aspect_ratio,
+        aperture=aperture,
+        focus_dist=dist_to_focus,
     )
 
     # Render

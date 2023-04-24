@@ -162,26 +162,37 @@ def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False):
 
     # Materials
     if greyshaded:
+        mat_ground = None
+        mat_center = None
         mat_left = None
         mat_right = None
     else:
-        mat_left = material.Lambertian(Color(0, 0, 1))
-        mat_right = material.Lambertian(Color(1, 0, 0))
+        mat_ground = material.Lambertian(Color(0.8, 0.8, 0.0))
+        mat_center = material.Lambertian(Color(0.1, 0.2, 0.5))
+        mat_left = material.Dielectric(1.5)
+        mat_right = material.Metal(Color(0.8, 0.6, 0.2), 0.0)
 
     # World
-    radius = math.cos(math.pi / 4)
-
     world = HittableList(
         [
-            Sphere(Point3(-radius, 0.0, -1.0), radius, material=mat_left),
-            Sphere(Point3(radius, 0.0, -1.0), radius, material=mat_right),
+            Sphere(Point3(0.0, -100.5, -1.0), 100.0, material=mat_ground),
+            Sphere(Point3(0.0, 0.0, -1.0), 0.5, material=mat_center),
+            Sphere(Point3(-1.0, 0.0, -1.0), 0.5, material=mat_left),
+            Sphere(Point3(-1.0, 0.0, -1.0), 0.45, material=mat_left),
+            Sphere(Point3(1.0, 0.0, -1.0), 0.5, material=mat_right),
         ]
     )
 
     # Camera
     # Let's define our camera with an adjustable vertical field of view
     # and an aspect_ratio (to get to the horizontal value)
-    camera = Camera(vfov=90.0, aspect_ratio=aspect_ratio)
+    camera = Camera(
+        lookfrom=Point3(-2, 2, 1),
+        lookat=Point3(0, 0, -1),
+        vup=Vec3(0, 1, 0),
+        vfov=20.0,
+        aspect_ratio=aspect_ratio,
+    )
 
     # Render
     header = [

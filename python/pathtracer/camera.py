@@ -11,6 +11,9 @@ class Camera:
 
     def __init__(
         self,
+        lookfrom: Point3,
+        lookat: Point3,
+        vup: Vec3,
         vfov: float,  # vertical field-of-view in degrees
         aspect_ratio: float,
     ):
@@ -20,20 +23,15 @@ class Camera:
         self.viewport_height = 2.0 * h
         self.viewport_width = aspect_ratio * self.viewport_height
 
-        self.focal_length = 1.0
+        w = (lookfrom - lookat).unit_vector()
+        u = vup.cross(w).unit_vector()
+        v = w.cross(u)
 
-        self.origin = Point3(0.0, 0.0, 0.0)
-        self.horizontal = Vec3(self.viewport_width, self.origin.y, self.origin.z)
-        self.vertical = Vec3(self.origin.x, self.viewport_height, self.origin.z)
-
-    @property
-    def lower_left_corner(self):
-        """Viewport's lower left corner coordinate."""
-        return (
-            self.origin
-            - self.horizontal / 2
-            - self.vertical / 2
-            - Vec3(0, 0, self.focal_length)
+        self.origin = lookfrom
+        self.horizontal = self.viewport_width * u
+        self.vertical = self.viewport_height * v
+        self.lower_left_corner = (
+            self.origin - self.horizontal / 2 - self.vertical / 2 - w
         )
 
     def get_ray(self, u: float, v: float) -> Ray:

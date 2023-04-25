@@ -4,6 +4,7 @@ To be called with `python -m pathtracer` from inside the dir `python/`.
 """
 
 import argparse
+from datetime import timedelta
 import enum
 import sys
 import time
@@ -79,7 +80,8 @@ def main():
         )
     else:
         render.main()
-    print(f"Render took {time.time() - start_time:0.2f}s")
+    total_time = time.time() - start_time
+    print(f"Render took {total_time:0.2f}s -- {timedelta(seconds=total_time)}")
     return 0
 
 

@@ -147,30 +147,32 @@ def _image(test=False, **kwargs):
     return (pixel_color for pixel_row in results for pixel_color in pixel_row)
 
 
-def image(path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False):
+def image(
+    path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False, randomize=True
+):
     """Render image."""
     if not path:
         path = "image.ppm"
 
     # Image
-    aspect_ratio = 16.0 / 9.0
-    resx = 400
+    aspect_ratio = 3.0 / 2.0
+    resx = 1200
     resy = int(resx // aspect_ratio)
 
-    samples = 10
-    max_depth = 50
+    samples = 16
+    max_depth = 10
 
-    world = construct_scene(greyshaded=greyshaded)
+    world = construct_scene(greyshaded=greyshaded, randomize=randomize)
 
     # Camera
     # Let's define our camera with an adjustable vertical field of view
     # and an aspect_ratio
     # and an adjustable depth-of-field (dof)
-    lookfrom = Point3(3, 3, 2)
-    lookat = Point3(0, 0, -1)
+    lookfrom = Point3(13, 2, 3)
+    lookat = Point3(0, 0, 0)
     vup = Vec3(0, 1, 0)
-    dist_to_focus = (lookfrom - lookat).length()
-    aperture = 2.0
+    dist_to_focus = 10.0
+    aperture = 0.1
 
     camera = Camera(
         lookfrom=lookfrom,

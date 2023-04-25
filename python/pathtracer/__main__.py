@@ -70,13 +70,17 @@ def main():
         dest="diffuse_mode",
     )
     parser.add_argument("-g", "--grey", action="store_true", default=False)
+    parser.add_argument("-r", "--random", action="store_true", default=True)
     args = parser.parse_args()
     start_time = time.time()
     if args.mode == "hello-world":
         render.hello_world(path=args.path)
     elif args.mode == "image":
         render.image(
-            path=args.path, diffuse_mode=args.diffuse_mode, greyshaded=args.grey
+            path=args.path,
+            diffuse_mode=args.diffuse_mode,
+            greyshaded=args.grey,
+            randomize=args.random,
         )
     else:
         render.main()

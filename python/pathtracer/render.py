@@ -135,7 +135,7 @@ def render_progress(tasks_registry, task_num, total, _):
     tasks_registry[str(task_num)] = task_num
     percent = 100 * len(tasks_registry) // total
     progress = block_char * percent + "-" * (100 - percent)
-    print(f"Progress: |{progress}| {percent}% complete", end="\r", flush=True)
+    print(f"\rProgress: |{progress}| {percent}% complete", end="\r", flush=True)
 
 
 def _image(test=False, **kwargs):

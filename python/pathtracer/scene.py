@@ -7,10 +7,10 @@ from . import material
 from .vec3 import Color, Point3
 
 
-def construct_scene(greyshaded=False, randomize=False):
+def construct_scene(greyshaded=False, randomize=False, seed=None):
     """Construct 3d scene for rendering."""
     if randomize:
-        return _random_scene()
+        return _random_scene(seed=seed)
     return _manual_scene(greyshaded=greyshaded)
 
 
@@ -42,7 +42,7 @@ def _manual_scene(greyshaded=False):
     return scene
 
 
-def _random_scene():
+def _random_scene(seed=None):
     """Construct a random scene."""
     world = HittableList()
 
@@ -51,6 +51,9 @@ def _random_scene():
 
     for a in range(-11, 11):
         for b in range(-11, 11):
+            if seed is not None:
+                seed += 1
+                random.seed(seed)
             choose_mat = random.random()
             center = Point3(a + 0.9 * random.random(), 0.2, b + 0.9 * random.random())
 

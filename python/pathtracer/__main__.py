@@ -96,6 +96,15 @@ def main():
             "By default (if not passed) renders the random one."
         ),
     )
+    parser.add_argument(
+        "-r",
+        "--random-seed",
+        type=int,
+        help=(
+            "Seed value to use for the random scene generation "
+            "(if we want reproducible results)."
+        )
+    )
     args = parser.parse_args()
 
     start_time = time.time()
@@ -107,6 +116,7 @@ def main():
             diffuse_mode=args.diffuse_mode,
             greyshaded=args.grey,
             randomize=not args.manual_scene,
+            seed=args.random_seed,
         )
     else:
         render.main()

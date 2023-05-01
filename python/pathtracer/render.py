@@ -196,7 +196,7 @@ def _set_scene_image_settings(greyshaded=False):
     return settings
 
 
-def _random_scene_image_settings():
+def _random_scene_image_settings(seed=None):
     """Build scene description + settings for the randomly built scene."""
     # Image
     aspect_ratio = 3.0 / 2.0
@@ -204,7 +204,7 @@ def _random_scene_image_settings():
     resy = int(resx // aspect_ratio)
 
     # Scene
-    world = construct_scene(randomize=True)
+    world = construct_scene(randomize=True, seed=seed)
 
     # Camera
     # Let's define our camera with an adjustable vertical field of view
@@ -231,14 +231,18 @@ def _random_scene_image_settings():
 
 
 def image(
-    path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False, randomize=True
+    path=None,
+    diffuse_mode=DIFFUSE_MODE.SIMPLE,
+    greyshaded=False,
+    randomize=True,
+    seed=None,
 ):
     """Render image."""
     if not path:
         path = "image.ppm"
 
     if randomize:
-        scene_settings = _random_scene_image_settings()
+        scene_settings = _random_scene_image_settings(seed=seed)
     else:
         scene_settings = _set_scene_image_settings(greyshaded=greyshaded)
 

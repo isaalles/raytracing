@@ -34,8 +34,8 @@ _SceneSettings = namedtuple(
 )
 """tuple: for use as the :func:`_image` parameters.
 
-- resx (int): whether the light should scatter,
-- resy (int): what colour should it scatter with,
+- resx (int): Image width in pixels.
+- resy (int): Image height in pixels.
 - camera (Camera): Camera object.
 - samples (int): AA samples.
 - max_depth (int): Max bounce.

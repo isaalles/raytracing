@@ -1,5 +1,6 @@
 """Render."""
 
+from collections import namedtuple
 import enum
 import functools
 import math
@@ -27,6 +28,20 @@ _LIGHT_BLUE = Color(0.5, 0.7, 1.0)
 DIFFUSE_MODE = enum.Enum("DIFFUSE_MODE", ["SIMPLE", "LAMBERTIAN", "ALTERNATE"])
 
 _PROCESSES = multiprocessing.cpu_count()
+
+_SceneSettings = namedtuple(
+    "_SceneSettings", ["resx", "resy", "camera", "samples", "max_depth", "world"]
+)
+"""tuple: for use as the :func:`_image` parameters.
+
+- resx (int): whether the light should scatter,
+- resy (int): what colour should it scatter with,
+- camera (Camera): Camera object.
+- samples (int): AA samples.
+- max_depth (int): Max bounce.
+- world (HittableList): Scene description.
+
+"""
 
 
 def ray_color(
@@ -147,22 +162,49 @@ def _image(test=False, **kwargs):
     return (pixel_color for pixel_row in results for pixel_color in pixel_row)
 
 
-def image(
-    path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False, randomize=True
-):
-    """Render image."""
-    if not path:
-        path = "image.ppm"
+def _set_scene_image_settings(greyshaded=False):
+    """Build scene description + settings for the manually built scene."""
+    # Image
+    aspect_ratio = 16.0 / 9.0
+    resx = 400
+    resy = int(resx // aspect_ratio)
 
+    # Scene
+    world = construct_scene(greyshaded=greyshaded)
+
+    # Camera
+    # Let's define our camera with an adjustable vertical field of view
+    # and an aspect_ratio
+    # and an adjustable depth-of-field (dof)
+    lookfrom = Point3(3, 3, 2)
+    lookat = Point3(0, 0, -1)
+    dist_to_focus = (lookfrom - lookat).length()
+
+    camera = Camera(
+        lookfrom=lookfrom,
+        lookat=lookat,
+        vup=Vec3(0, 1, 0),
+        vfov=20.0,
+        aspect_ratio=aspect_ratio,
+        aperture=2.0,
+        focus_dist=dist_to_focus,
+    )
+
+    settings = _SceneSettings(
+        resx=resx, resy=resy, camera=camera, samples=10, max_depth=50, world=world
+    )
+    return settings
+
+
+def _random_scene_image_settings():
+    """Build scene description + settings for the randomly built scene."""
     # Image
     aspect_ratio = 3.0 / 2.0
     resx = 1200
     resy = int(resx // aspect_ratio)
 
-    samples = 16
-    max_depth = 10
-
-    world = construct_scene(greyshaded=greyshaded, randomize=randomize)
+    # Scene
+    world = construct_scene(randomize=True)
 
     # Camera
     # Let's define our camera with an adjustable vertical field of view
@@ -170,35 +212,51 @@ def image(
     # and an adjustable depth-of-field (dof)
     lookfrom = Point3(13, 2, 3)
     lookat = Point3(0, 0, 0)
-    vup = Vec3(0, 1, 0)
     dist_to_focus = 10.0
-    aperture = 0.1
 
     camera = Camera(
         lookfrom=lookfrom,
         lookat=lookat,
-        vup=vup,
+        vup=Vec3(0, 1, 0),
         vfov=20.0,
         aspect_ratio=aspect_ratio,
-        aperture=aperture,
+        aperture=0.1,
         focus_dist=dist_to_focus,
     )
+
+    settings = _SceneSettings(
+        resx=resx, resy=resy, camera=camera, samples=16, max_depth=10, world=world
+    )
+    return settings
+
+
+def image(
+    path=None, diffuse_mode=DIFFUSE_MODE.SIMPLE, greyshaded=False, randomize=True
+):
+    """Render image."""
+    if not path:
+        path = "image.ppm"
+
+    if randomize:
+        scene_settings = _random_scene_image_settings()
+    else:
+        scene_settings = _set_scene_image_settings(greyshaded=greyshaded)
 
     # Render
     header = [
         "P3\n",
-        f"{resx} {resy}\n",
+        f"{scene_settings.resx} {scene_settings.resy}\n",
         "255\n",
     ]
 
     pixels = _image(
         test=False,
-        resx=resx,
-        resy=resy,
-        camera=camera,
-        world=world,
-        samples=samples,
-        max_depth=max_depth,
+        resx=scene_settings.resx,
+        resy=scene_settings.resy,
+        camera=scene_settings.camera,
+        world=scene_settings.world,
+        samples=scene_settings.samples,
+        max_depth=scene_settings.max_depth,
         diffuse_mode=diffuse_mode,
     )
 

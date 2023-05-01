@@ -58,9 +58,15 @@ def main():
     """Entry point."""
     parser = argparse.ArgumentParser(prog="pathtracer")
     parser.add_argument(
-        "mode", nargs="?", choices=("hello-world", "image"), default="image"
+        "mode",
+        nargs="?",
+        choices=("hello-world", "image"),
+        default="image",
+        help="Render mode. Defaults to `image` i.e. render a scene."
     )
-    parser.add_argument("-p", "--path")
+    parser.add_argument(
+        "-p", "--path", help="Path to save image to. Defaults to `./image.ppm`"
+    )
     parser.add_argument(
         "-d",
         "--diffuse",
@@ -68,10 +74,30 @@ def main():
         action=EnumAction,
         default=render.DIFFUSE_MODE.SIMPLE,
         dest="diffuse_mode",
+        help="Which diffuse mode/implementation to use. Defaults to `simple`.",
     )
-    parser.add_argument("-g", "--grey", action="store_true", default=False)
-    parser.add_argument("-r", "--random", action="store_true", default=True)
+    parser.add_argument(
+        "-g",
+        "--grey",
+        action="store_true",
+        default=False,
+        help=(
+            "Whether to render greyshaded (good for testing) "
+            "-- only works on the manual scene."
+        ),
+    )
+    parser.add_argument(
+        "-m",
+        "--manual-scene",
+        action="store_true",
+        default=False,
+        help=(
+            "Whether to render the manually built scene. "
+            "By default (if not passed) renders the random one."
+        ),
+    )
     args = parser.parse_args()
+
     start_time = time.time()
     if args.mode == "hello-world":
         render.hello_world(path=args.path)
@@ -80,11 +106,12 @@ def main():
             path=args.path,
             diffuse_mode=args.diffuse_mode,
             greyshaded=args.grey,
-            randomize=args.random,
+            randomize=not args.manual_scene,
         )
     else:
         render.main()
     total_time = time.time() - start_time
+
     print(f"Render took {total_time:0.2f}s -- {timedelta(seconds=total_time)}")
     return 0
 

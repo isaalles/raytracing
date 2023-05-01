@@ -18,7 +18,7 @@ _RayAttenuation = namedtuple("RayAttenuation", ["scatter", "attenuation", "scatt
 """tuple: for use as the :func:`scatter` return value.
 
 - scatter (bool): whether the light should scatter,
-- atteniation (Color): what colour should it scatter with,
+- attenuation (Color): what colour should it scatter with,
 - scattered (Ray): the ray scattered.
 
 """
